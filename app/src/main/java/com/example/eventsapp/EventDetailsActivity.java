@@ -44,6 +44,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         //Date
         TextView eventDate = findViewById(R.id.eventDate);
 
+        //Location
+        TextView eventLocation = findViewById(R.id.eventLocation);
 
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -60,6 +62,9 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                         String date = event.child("datetime").child("start").getValue(String.class);
                         eventDate.setText(date);
+
+                        String location = event.child("location").child("address").getValue(String.class);
+                        eventLocation.setText(location);
                     }
                 }
             }
