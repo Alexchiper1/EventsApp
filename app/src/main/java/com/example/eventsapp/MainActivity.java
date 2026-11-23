@@ -2,6 +2,8 @@ package com.example.eventsapp;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -16,16 +18,26 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     FirebaseDatabase database;
     DatabaseReference dbRef;
+    ListView eventList;
+    ArrayList<String> titles;
+    ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        eventList = findViewById(R.id.eventList);
+        titles = new ArrayList<>();
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,titles);
+        eventList.setAdapter(adapter);
 
         database = FirebaseDatabase.getInstance("https://eventsapp-8d3ef-default-rtdb.europe-west1.firebasedatabase.app");
         dbRef = database.getReference("events");
@@ -34,11 +46,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                Log.d("EventsApp", "Firebase data received");
+                titles.clear();
+
                 for (DataSnapshot event : snapshot.getChildren()){
                     String title = event.child("title").getValue(String.class);
+                    titles.add(title);
                     Log.d("EventsApp",title);
                 }
+
+                adapter.notifyDataSetChanged();
             }
 
             @Override
