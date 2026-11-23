@@ -41,6 +41,10 @@ public class EventDetailsActivity extends AppCompatActivity {
         //Categories
         TextView eventCat = findViewById(R.id.eventCat);
 
+        //Date
+        TextView eventDate = findViewById(R.id.eventDate);
+
+
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -53,6 +57,9 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                         String category = event.child("category").getValue(String.class);
                         eventCat.setText(category);
+
+                        String date = event.child("datetime").child("start").getValue(String.class);
+                        eventDate.setText(date);
                     }
                 }
             }
