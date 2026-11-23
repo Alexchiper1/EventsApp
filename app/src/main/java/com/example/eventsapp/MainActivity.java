@@ -27,14 +27,14 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        database = FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance("https://eventsapp-8d3ef-default-rtdb.europe-west1.firebasedatabase.app");
         dbRef = database.getReference("events");
         //read the events from firebase
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-
+                Log.d("EventsApp", "Firebase data received");
                 for (DataSnapshot event : snapshot.getChildren()){
                     String title = event.child("title").getValue(String.class);
                     Log.d("EventsApp",title);
