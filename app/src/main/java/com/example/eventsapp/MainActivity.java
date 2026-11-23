@@ -1,5 +1,6 @@
 package com.example.eventsapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -36,8 +37,15 @@ public class MainActivity extends AppCompatActivity {
 
         eventList = findViewById(R.id.eventList);
         titles = new ArrayList<>();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,titles);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titles);
         eventList.setAdapter(adapter);
+
+        //Open details of event
+        eventList.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(MainActivity.this, EventDetailsActivity.class);
+            intent.putExtra("title", titles.get(position));
+            startActivity(intent);
+        });
 
         database = FirebaseDatabase.getInstance("https://eventsapp-8d3ef-default-rtdb.europe-west1.firebasedatabase.app");
         dbRef = database.getReference("events");
