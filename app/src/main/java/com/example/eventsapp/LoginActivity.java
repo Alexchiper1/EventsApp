@@ -46,5 +46,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void regClick(View view) {
+        String email = ((EditText)findViewById(R.id.editEmail)).getText().toString();
+        String password = ((EditText)findViewById(R.id.editPassword)).getText().toString();
+
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task ->{
+            if(task.isSuccessful()){
+                Toast.makeText(this, "Registration Is Successful", Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(this, "Registration Failed", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
