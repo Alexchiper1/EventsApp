@@ -1,17 +1,27 @@
 package com.example.eventsapp;
 
+import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -81,4 +91,36 @@ public class EventDetailsActivity extends AppCompatActivity {
             return insets;
         });
     }
+
+    public void subscribe(View view) {
+        String title = ((TextView) findViewById(R.id.eventTitle)).getText().toString();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://eventsapp-8d3ef-default-rtdb.europe-west1.firebasedatabase.app");
+        DatabaseReference dbRef = database.getReference("subscriptions");
+        dbRef.child(uid).push().setValue(title).addOnSuccessListener(unused -> {
+            Toast.makeText(this, "Subscribed", Toast.LENGTH_SHORT).show();
+            sendNotification(title);
+        });
+    }
+
+    public void sendNotification(String title) {
+
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel("events", "Event Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+        manager.createNotificationChannel(channel);
+
+        Notification notification = new Notification.Builder(this, "events")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Event Subscription")
+                .setContentText("Subscribed to " + title)
+                .setAutoCancel(true)
+                .build();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+            return;
+        }
+        manager.notify(1, notification);
+    }
+
 }
