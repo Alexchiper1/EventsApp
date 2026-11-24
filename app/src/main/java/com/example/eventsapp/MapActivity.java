@@ -1,5 +1,6 @@
 package com.example.eventsapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -15,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,6 +47,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         LatLng dublin = new LatLng(53.3498, -6.2603);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dublin, 11));
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                Intent intent = new Intent(MapActivity.this, EventDetailsActivity.class);
+                intent.putExtra("title", marker.getTitle());
+                startActivity(intent);
+                return true;
+            }
+        });
 
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://eventsapp-8d3ef-default-rtdb.europe-west1.firebasedatabase.app");
         DatabaseReference dbRef = database.getReference("events");
