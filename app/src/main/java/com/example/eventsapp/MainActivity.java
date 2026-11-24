@@ -1,8 +1,11 @@
 package com.example.eventsapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -37,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     Spinner spinner;
     ArrayList<String> allTitles;
     ArrayList<String> eventCategories;
+    //Location
+    Location userlocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
                     String title = event.child("title").getValue(String.class);
                     String category = event.child("category").getValue(String.class);
 
+
+
                     allTitles.add(title);
                     eventCategories.add(category);
 
@@ -144,10 +152,58 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     public void nearMe(View view) {
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            return;
         }
+
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        if (location != null) {
+            userlocation = location;
+
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            Toast.makeText(this, lat + ", " + lng, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                titles.clear();
+
+                for (DataSnapshot event : snapshot.getChildren()) {
+                    String title = event.child("title").getValue(String.class);
+
+                    Double lat = event.child("location").child("coordinates").child("lat").getValue(Double.class);
+                    Double lng = event.child("location").child("coordinates").child("lng").getValue(Double.class);
+
+                    if (lat != null && lng != null) {
+                        Location eventLocation = new Location("event");
+                        eventLocation.setLatitude(lat);
+                        eventLocation.setLongitude(lng);
+
+                        float distance = userlocation.distanceTo(eventLocation);
+
+                        if (distance <= 5000) {
+                            titles.add(title);
+                        }
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w("EventsApp", "Firebase Fail", error.toException());
+            }
+        });
     }
+
 }
