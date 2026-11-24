@@ -26,6 +26,14 @@
             android:text="Near Me"
             android:onClick="nearMe" />
 
+        <Button
+            android:id="@+id/adminButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin"
+            android:visibility="gone"
+            android:onClick="openAdmin" />
+
     </LinearLayout>
 
     <Spinner

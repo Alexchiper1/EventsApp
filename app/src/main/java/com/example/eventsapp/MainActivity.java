@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -70,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
 
         eventList = findViewById(R.id.eventList);
         titles = new ArrayList<>();
@@ -131,6 +131,24 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        Button adminBut = findViewById(R.id.adminButton);
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        database.getReference("admins").child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(Boolean.TRUE.equals(snapshot.getValue(Boolean.class))){
+                    adminBut.setVisibility(View.VISIBLE);
+                }else{
+                    adminBut.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w("EventsApp", "Admin failed", error.toException());
+            }
         });
     }
 
@@ -204,6 +222,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.w("EventsApp", "Firebase Fail", error.toException());
             }
         });
+    }
+    public void openAdmin(View view) {
+        Intent intent = new Intent(this, AdminActivity.class);
+        startActivity(intent);
     }
 
 }
