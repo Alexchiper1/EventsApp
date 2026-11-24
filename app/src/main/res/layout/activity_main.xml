@@ -34,6 +34,14 @@
             android:visibility="gone"
             android:onClick="openAdmin" />
 
+        <Button
+            android:id="@+id/calendarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Calendar"
+            android:onClick="openCalendar" />
+
+
     </LinearLayout>
 
     <Spinner

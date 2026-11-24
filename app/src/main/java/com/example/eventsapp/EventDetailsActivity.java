@@ -123,4 +123,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         manager.notify(1, notification);
     }
 
+    public void openFeedback(View view) {
+        Intent intent = new Intent(this, FeedbackActivity.class);
+        startActivity(intent);
+    }
 }
